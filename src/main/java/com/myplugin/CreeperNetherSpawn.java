@@ -15,11 +15,21 @@ import java.util.Random;
 public class CreeperNetherSpawn extends JavaPlugin {
 
     private FileConfiguration config;
+    private int spawnRadiusPerPlayer;
+    private int spawnRadiusPerPlayerMin;
+    private int spawnRadiusPerPlayerY;
+    private Random random;
 
     @Override
     public void onEnable() {
-        this.saveDefaultConfig(); // Tạo file config.yml nếu chưa tồn tại
-        config = this.getConfig(); // Nạp file config.yml
+        this.saveDefaultConfig();
+        config = this.getConfig();
+
+        spawnRadiusPerPlayer = config.getInt("creeper-spawn.spawn-radius-per-player");
+        spawnRadiusPerPlayerMin = config.getInt("creeper-spawn.spawn-radius-per-player-min");
+        spawnRadiusPerPlayerY = config.getInt("creeper-spawn.spawn-radius-per-player-y");
+
+        random = new Random();
 
         Bukkit.getLogger().info("CreeperNetherSpawn plugin has been enabled.");
         startCreeperSpawnTask();
@@ -43,14 +53,13 @@ public class CreeperNetherSpawn extends JavaPlugin {
                     }
                 }
             }
-        }.runTaskTimer(this, 0L, 600L); // 600L = 30 giây
+        }.runTaskTimer(this, 0L, 600L);
     }
 
     public Location getRandomLocationNear(Location loc) {
-        Random random = new Random();
-        int x = loc.getBlockX() + random.nextInt(config.getInt("creeper-spawn.spawn-radius-per-player")) - config.getInt("creeper-spawn.spawn-radius-per-player-min");
-        int y = loc.getBlockY() + random.nextInt(config.getInt("creeper-spawn.spawn-radius-per-player-y")) - (config.getInt("creeper-spawn.spawn-radius-per-player-y") / 2);
-        int z = loc.getBlockZ() + random.nextInt(config.getInt("creeper-spawn.spawn-radius-per-player")) - config.getInt("creeper-spawn.spawn-radius-per-player-min");
+        int x = loc.getBlockX() + random.nextInt(spawnRadiusPerPlayer) - spawnRadiusPerPlayerMin;
+        int y = loc.getBlockY() + random.nextInt(spawnRadiusPerPlayerY) - (spawnRadiusPerPlayerY / 2);
+        int z = loc.getBlockZ() + random.nextInt(spawnRadiusPerPlayer) - spawnRadiusPerPlayerMin;
         return new Location(loc.getWorld(), x, y, z);
     }
 }
